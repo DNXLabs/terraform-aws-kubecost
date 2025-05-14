@@ -5,10 +5,29 @@ resource "aws_athena_workgroup" "kubecost" {
     enforce_workgroup_configuration    = true
     publish_cloudwatch_metrics_enabled = true
     result_configuration {
-      output_location = "s3://${aws_s3_bucket.athena_results.bucket}/"
+      output_location = "s3://${aws_s3_bucket.athena_results.bucket}/athena-query-results/"
       encryption_configuration {
         encryption_option = "SSE_S3"
       }
+    }
+  }
+}
+
+resource "aws_glue_catalog_table" "report_status_table" {
+  database_name = aws_glue_catalog_database.athena_cur_database.name
+  catalog_id    = var.payer_account_id
+  name          = "cost_and_usage_data_status"
+  table_type    = "EXTERNAL_TABLE"
+  storage_descriptor {
+    location      = "s3://${aws_s3_bucket.athena_results.bucket}/${aws_cur_report_definition.kubecost.s3_prefix}/${aws_cur_report_definition.kubecost.report_name}/cost_and_usage_data_status"
+    input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+    output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+    ser_de_info {
+      serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+    }
+    columns {
+      name = "status"
+      type = "string"
     }
   }
 }

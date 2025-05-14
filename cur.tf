@@ -1,21 +1,22 @@
 resource "aws_cur_report_definition" "kubecost" {
-  report_name                = "KubecostCUR"
-  time_unit                  = "DAILY"
-  format                     = "Parquet"
-  compression                = "Parquet"
-  additional_schema_elements = ["RESOURCES"]
-  s3_bucket                  = aws_s3_bucket.cur.id
-  s3_region                  = data.aws_region.current.name
-  s3_prefix                  = "kubecost-cur"
-  report_versioning          = "OVERWRITE_REPORT"
+  report_name            = "KubecostCUR"
+  time_unit              = "DAILY"
+  format                 = "Parquet"
+  compression            = "Parquet"
+  s3_bucket              = aws_s3_bucket.cur.id
+  s3_region              = data.aws_region.current.name
+  s3_prefix              = "athena_cur"
+  report_versioning      = "OVERWRITE_REPORT"
+  refresh_closed_reports = true
 
   # Required for KubeCost integration
-  additional_artifacts = ["ATHENA"]
+  additional_artifacts       = ["ATHENA"]
+  additional_schema_elements = ["RESOURCES"]
 
   # Ensure bucket policy is applied before creating the report
   depends_on = [aws_s3_bucket_policy.cur]
   # Cur Report is only available on us-east-1
-  provider   = aws.us-east-1
+  provider = aws.us-east-1
 }
 
 resource "aws_s3_bucket" "cur" {

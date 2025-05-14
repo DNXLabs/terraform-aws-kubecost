@@ -14,7 +14,7 @@ variable "eks_clusters" {
     oidc_provider = string
     namespace     = string
   }))
-  description = "EKS Clusters to setup IRSA"
+  description = "EKS Clusters to setup IRSA (IAM Roles for Service Accounts)"
 }
 
 variable "cur_data_retention_days" {
@@ -33,3 +33,7 @@ variable "organization_access_enabled" {
   description = "If kubecost policy should have read-only access to organization"
 }
 
+variable "payer_account_id" {
+  type        = string
+  description = "Payer account ID for the organization"
+}
