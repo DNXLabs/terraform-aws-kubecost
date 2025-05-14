@@ -52,9 +52,9 @@ data "aws_iam_policy_document" "crawler_exec_role_inline" {
     ]
     resources = [
       # this is a * grant in the cloudformation
-      "arn:aws:glue:${aws_s3_bucket.athena_results.region}:${var.payer_account_id}:catalog",
+      "arn:aws:glue:${aws_s3_bucket.athena_results.region}:${var.is_payer_account ? data.aws_caller_identity.current.id : var.payer_account_id}:catalog",
       aws_glue_catalog_database.athena_cur_database.arn,
-      "arn:aws:glue:${aws_s3_bucket.athena_results.region}:${var.payer_account_id}:table/${aws_glue_catalog_database.athena_cur_database.name}/*"
+      "arn:aws:glue:${aws_s3_bucket.athena_results.region}:${var.is_payer_account ? data.aws_caller_identity.current.id : var.payer_account_id}:table/${aws_glue_catalog_database.athena_cur_database.name}/*"
     ]
   }
   statement {

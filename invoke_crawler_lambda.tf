@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "crawler_lambda_assume_role" {
     effect = "Allow"
     principals {
       type        = "Service"
-      identifiers = ["glue.amazonaws.com"]
+      identifiers = ["lambda.amazonaws.com"]
     }
     actions = ["sts:AssumeRole"]
   }

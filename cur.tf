@@ -3,8 +3,8 @@ resource "aws_cur_report_definition" "kubecost" {
   time_unit              = "DAILY"
   format                 = "Parquet"
   compression            = "Parquet"
-  s3_bucket              = aws_s3_bucket.cur.id
-  s3_region              = data.aws_region.current.name
+  s3_bucket              = aws_s3_bucket.cur.bucket
+  s3_region              = aws_s3_bucket.cur.region
   s3_prefix              = "athena_cur"
   report_versioning      = "OVERWRITE_REPORT"
   refresh_closed_reports = true
