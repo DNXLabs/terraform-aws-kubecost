@@ -41,6 +41,6 @@ variable "is_payer_account" {
 variable "payer_account_id" {
   type        = string
   description = "Payer account ID for the organization"
-  default     = null
+  default     = ""
 }
 

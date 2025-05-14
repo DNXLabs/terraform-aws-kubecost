@@ -17,7 +17,7 @@ mock_provider "aws" {
   }
 }
 
-run "valid_required_vars" {
+run "valid_all_vars" {
   command = plan
   variables {
     name = "cur_test"

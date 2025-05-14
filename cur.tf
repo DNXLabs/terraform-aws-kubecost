@@ -1,5 +1,5 @@
 resource "aws_cur_report_definition" "kubecost" {
-  report_name            = "KubecostCUR"
+  report_name            = "${var.name}_cur"
   time_unit              = "DAILY"
   format                 = "Parquet"
   compression            = "Parquet"
