@@ -52,16 +52,16 @@ data "aws_iam_policy_document" "crawler_exec_role_inline" {
     ]
     resources = [
       # this is a * grant in the cloudformation
-      "arn:aws:glue:${aws_s3_bucket.athena_s3_bucket.region}:${var.payer_account_id}:catalog",
+      "arn:aws:glue:${aws_s3_bucket.athena_results.region}:${var.payer_account_id}:catalog",
       aws_glue_catalog_database.athena_cur_database.arn,
-      "arn:aws:glue:${aws_s3_bucket.athena_s3_bucket.region}:${var.payer_account_id}:table/${aws_glue_catalog_database.athena_cur_database.name}/*"
+      "arn:aws:glue:${aws_s3_bucket.athena_results.region}:${var.payer_account_id}:table/${aws_glue_catalog_database.athena_cur_database.name}/*"
     ]
   }
   statement {
     effect    = "Allow"
     sid       = "AllowS3Access"
     actions   = ["s3:GetObject", "s3:PutObject"]
-    resources = ["${aws_s3_bucket.athena_s3_bucket.arn}/${local.glue_crawler_s3_path}*"]
+    resources = ["${aws_s3_bucket.athena_results.arn}/${local.glue_crawler_s3_path}*"]
   }
 }
 
@@ -71,7 +71,7 @@ resource "aws_glue_crawler" "crawler" {
   database_name = aws_glue_catalog_database.athena_cur_database.name
   role          = aws_iam_role.crawler_exec_role.arn
   s3_target {
-    path       = "s3://${aws_s3_bucket.athena_s3_bucket.bucket}/${local.glue_crawler_s3_path}"
+    path       = "s3://${aws_s3_bucket.athena_results.bucket}/${local.glue_crawler_s3_path}"
     exclusions = ["**.json", "**.yml", "**.sql", "**.csv", "**.gz", "**.zip"]
   }
   schema_change_policy {
@@ -79,3 +79,4 @@ resource "aws_glue_crawler" "crawler" {
     delete_behavior = "DELETE_FROM_DATABASE"
   }
 }
+
