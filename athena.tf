@@ -1,6 +1,6 @@
-resource "aws_athena_workgroup" "kubecost" {
-  name        = "kubecost"
-  description = "Workgroup for KubeCost queries"
+resource "aws_athena_workgroup" "athena" {
+  name        = var.name
+  description = "Workgroup for queries"
   configuration {
     enforce_workgroup_configuration    = true
     publish_cloudwatch_metrics_enabled = true
@@ -19,7 +19,7 @@ resource "aws_glue_catalog_table" "report_status_table" {
   name          = "cost_and_usage_data_status"
   table_type    = "EXTERNAL_TABLE"
   storage_descriptor {
-    location      = "s3://${aws_s3_bucket.athena_results.bucket}/${aws_cur_report_definition.kubecost.s3_prefix}/${aws_cur_report_definition.kubecost.report_name}/cost_and_usage_data_status"
+    location      = "s3://${aws_s3_bucket.athena_results.bucket}/${aws_cur_report_definition.cur.s3_prefix}/${aws_cur_report_definition.cur.report_name}/cost_and_usage_data_status"
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
     ser_de_info {
@@ -73,3 +73,4 @@ resource "aws_s3_bucket_lifecycle_configuration" "athena_results" {
     }
   }
 }
+

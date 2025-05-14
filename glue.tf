@@ -1,5 +1,5 @@
 resource "aws_glue_catalog_database" "athena_cur_database" {
-  name        = "athenacurcfn_${aws_cur_report_definition.kubecost.report_name}"
+  name        = "athenacurcfn_${aws_cur_report_definition.cur.report_name}"
   catalog_id  = var.payer_account_id
   description = "Athena database for Cost and Usage Report - ${var.name}"
   provider    = aws

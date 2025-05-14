@@ -1,3 +1,37 @@
+# Using this module with kubecost
+
+First apply the module to create the Athena and CUR report resources:
+
+```hcl
+module "athena_cur" {
+  source = ""
+  name = "kubecost"
+}
+```
+
+Then apply the irsa (IAM Roles for Service Accounts) so kubecost can have access to
+the S3 bucket of CUR reports:
+
+```hcl
+module "kubecost_irsa" {
+ source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+ version = "~> 5.30"
+
+ role_name_prefix              = "${var.environment}-${data.aws_region.current.name}-"
+ assume_role_condition_test    = "StringLike"
+ role_path                     = "/"
+ role_permissions_boundary_arn = ""
+
+ role_policy_arns = {
+   policy = aws_iam_policy.kubecost.arn
+ }
+
+ oidc_providers = { for cluster in var.eks_clusters : cluster.name => {
+   provider_arn               = cluster.oidc_provider
+   namespace_service_accounts = ["${cluster.namespace}:*"]
+ } }
+}
+
 resource "aws_iam_policy" "kubecost" {
   name        = "${var.environment}-${data.aws_region.current.name}-kubecost-policy"
   description = "Provides necessary permissions for KubeCost"
@@ -63,7 +97,10 @@ data "aws_iam_policy_document" "kubecost_s3" {
       "s3:ListBucket",
       "s3:GetBucketLocation"
     ]
-    resources = [aws_s3_bucket.cur.arn, "${aws_s3_bucket.cur.arn}/*"]
+    resources = [
+      module.athena_cur.cur_s3_bucket.arn,
+      "${module.athena_cur.cur_s3_bucket.arn}/*"
+    ]
   }
 
   statement {
@@ -76,7 +113,10 @@ data "aws_iam_policy_document" "kubecost_s3" {
       "s3:PutObject",
       "s3:AbortMultipartUpload"
     ]
-    resources = [aws_s3_bucket.athena_results.arn, "${aws_s3_bucket.athena_results.arn}/*"]
+    resources = [
+      module.athena_cur.athena_s3_bucket.arn,
+      "${module.athena_cur.athena_s3_bucket.arn}/*"
+    ]
   }
 }
 
@@ -94,7 +134,7 @@ data "aws_iam_policy_document" "kubecost_athena" {
       "athena:ListQueryExecutions"
     ]
     resources = [
-      "arn:aws:athena:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:workgroup/${aws_athena_workgroup.kubecost.name}"
+      "arn:aws:athena:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:workgroup/${module.athenas_cur.athena_workgroup.name}"
     ]
   }
 
@@ -111,8 +151,8 @@ data "aws_iam_policy_document" "kubecost_athena" {
     ]
     resources = [
       "arn:aws:glue:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:catalog",
-      "arn:aws:glue:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:database/${local.athena_db_name}",
-      "arn:aws:glue:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:table/${local.athena_db_name}/*"
+      "arn:aws:glue:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:database/${module.athena_cur.athena_workgroup.db_name}",
+      "arn:aws:glue:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:table/${module.athena_cur.athena_workgroup.db_name}/*"
     ]
   }
 }
@@ -160,4 +200,10 @@ data "aws_iam_policy_document" "kubecost_org" {
     resources = ["*"]
   }
 }
+```
 
+Apply helm chart:
+
+```bash
+helm
+```

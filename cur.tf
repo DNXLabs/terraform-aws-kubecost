@@ -1,4 +1,4 @@
-resource "aws_cur_report_definition" "kubecost" {
+resource "aws_cur_report_definition" "cur" {
   report_name            = "${var.name}_cur"
   time_unit              = "DAILY"
   format                 = "Parquet"
@@ -9,7 +9,6 @@ resource "aws_cur_report_definition" "kubecost" {
   report_versioning      = "OVERWRITE_REPORT"
   refresh_closed_reports = true
 
-  # Required for KubeCost integration
   additional_artifacts       = ["ATHENA"]
   additional_schema_elements = ["RESOURCES"]
 
