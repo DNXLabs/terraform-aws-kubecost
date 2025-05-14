@@ -19,7 +19,7 @@ resource "aws_cur_report_definition" "cur" {
 }
 
 resource "aws_s3_bucket" "cur" {
-  bucket = local.cur_bucket_name
+  bucket_prefix = local.cur_bucket_name
 }
 
 # Enable versioning for data protection
@@ -65,7 +65,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "cur" {
       storage_class = "STANDARD_IA"
     }
     expiration {
-      days = var.cur_data_retention_days
+      days = 120
     }
   }
 }

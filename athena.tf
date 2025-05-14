@@ -69,7 +69,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "athena_results" {
     id     = "cost"
     status = "Enabled"
     expiration {
-      days = var.athena_results_retention_days
+      days = 30
     }
   }
 }
